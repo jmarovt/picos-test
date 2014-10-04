@@ -1,0 +1,25 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+.form-field {
+	text-align: center;
+  width:500px;
+  height: 70px;
+  font-size:2em;
+  border-radius:8px;
+  margin-bottom:30px;
+}
+
+a {
+  color: #00B7FF;
+}
+
+input.invalid, textarea.invalid{
+    border: 2px solid red;
+}
+ 
+input.valid, textarea.valid{
+    border: 2px solid green;
+}
