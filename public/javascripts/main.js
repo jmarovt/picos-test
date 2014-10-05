@@ -1,5 +1,7 @@
 $(function(){
 
+	var MAX_CHAR = 60;
+
 	updateCountdown();
 	$('#title').change(updateCountdown);
 	$('#title').keyup(updateCountdown);
@@ -24,16 +26,16 @@ $(function(){
 
 	$('#image').on('change', function(e){
    	
-	   	var input = $(this);
-	    var value = input.val();
-	    console.log(value);
+	   	var validation = imageValid($(this));
 
-	    if ( value.indexOf(".png") > -1 || value.indexOf(".jpg") > -1 ){
-       		input.removeClass("invalid").addClass("valid");
+       	if (validation[0] == true){
+       		$('#validation-image').text("");
+	       	$(this).removeClass("invalid").addClass("valid");
        	}
        	else{
-       		input.removeClass("valid").addClass("invalid");
-       	};
+       		$('#validation-image').text(validation[1]);
+       		$(this).removeClass("valid").addClass("invalid");
+       	}
 
 	});
 
@@ -42,8 +44,8 @@ $(function(){
     	var error_free = false;
 
     	if ( $('#search').hasClass("valid") ){
-    		if( $('#title').val().length <= 60 ){
-    			if ( $('#file').val().indexOf(".png") > -1 || $('#file').val().indexOf(".jpg") > -1 ){
+    		if( $('#title').val().length <= MAX_CHAR ){
+    			if ( imageValid($('#image'))[0] ){
     				error_free = true;
     			}
     		}
@@ -54,13 +56,39 @@ $(function(){
     	};
 
 	});
+
+	function imageValid(image) {
+
+		var input = image;
+	    var value = input.val();
+
+		if ( value.indexOf(".png") > -1 || value.indexOf(".jpg") > -1 ){
+
+       		//check file size
+       		if (input[0].files[0].size > 2000000){
+       			
+       			return ([false, "Your image is too big. Images should be less than 2M."]);
+	       	}
+	       	else {
+
+	       		return ([true,""]);
+	       	}
+
+       	}
+       	else{
+
+       		return ([false, "Please only upload images in .png and .jpg formats."]);
+       	};
+
+
+	}
    	
 	function updateCountdown() {
 
 		var input = $('#title');
 
 	    // 60 is the max message length
-	    var remaining = 60 - input.val().length;
+	    var remaining = MAX_CHAR - input.val().length;
 	    $('#countdown').text(remaining + ' characters remaining.');
 
 
