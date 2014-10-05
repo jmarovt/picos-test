@@ -35,34 +35,41 @@ app.get('/searching', function(req, res){
  
     // input value from search
     var val = req.query.search;
-    // url used to search yql
+    
+    //check if domain has a valid domain format
+    if (checkDomain(val) != null){
+        
+        var url = "https://api.sandbox.namecheap.com/xml.response?ApiUser="+ncuser+
+        "&ApiKey="+apikey+"&UserName="+ncuser+"&ClientIp="+clientip+"&Command=namecheap.domains.check&DomainList="+val;
 
-    console.log(val);
+        // request module is used to process the yql url and return the results in JSON format
+        request(url, function(err, resp, body) {
+            if (!err && resp.statusCode != 403 && resp.statusCode == 200) {
 
-    var url = "https://api.sandbox.namecheap.com/xml.response?ApiUser="+ncuser+
-    "&ApiKey="+apikey+"&UserName="+ncuser+"&ClientIp="+clientip+"&Command=namecheap.domains.check&DomainList="+val;
+                parser.parseString(body, function (err, result) {
+                    
+                    if(result.ApiResponse.$.Status == "ERROR"){
+                        console.log("There has been an error: ");
+                        console.dir(result.ApiResponse.Errors[0].Error[0]._);
 
-    // request module is used to process the yql url and return the results in JSON format
-    request(url, function(err, resp, body) {
-        if (!err && resp.statusCode != 403 && resp.statusCode == 200) {
+                        res.send("false");
+                    }
+                    else {
+                        var domain_available = result.ApiResponse.CommandResponse[0].DomainCheckResult[0].$.Available;
 
-            parser.parseString(body, function (err, result) {
-                
-                if(result.ApiResponse.$.Status == "ERROR"){
-                    console.log("There has been an error: ");
-                    console.dir(result.ApiResponse.Errors[0].Error[0]._);
+                        // pass back the results to client side
+                        res.send(domain_available);                 
+                    }
+                }); 
+            }
+        });
 
-                    res.send("false");
-                }
-                else {
-                    var domain_available = result.ApiResponse.CommandResponse[0].DomainCheckResult[0].$.Available;
+    }
+    else {
+        console.log("teeeeeest");
+        res.send("false");
+    }
 
-                    // pass back the results to client side
-                    res.send(domain_available);                 
-                }
-            }); 
-        }
-    });
 });
 
 app.post('/submit', function(req,res){
@@ -130,6 +137,12 @@ function buildHtml(req, title, imagePath) {
             + '</html>';
 };
 
+function checkDomain(value){
+
+    var re = new RegExp(/^([\da-z\.-]+)\.([a-z\.]{2,6})$/);
+    return value.match(re);
+
+};
 
 
 // catch 404 and forward to error handler
