@@ -91,13 +91,13 @@ app.post('/submit', function(req,res){
         }
         else if(key == "domain"){
             domain = value;
-            var newFolder = 'public/sites/' + domain;
+            var newFolder = 'public/sites/preview/' + domain;
 
             //create new folder with the name of the domain
             mkdirp(newFolder, function(err) { 
 
                 // path was created unless there was error
-                var fileName = 'public/sites/'+ domain +'/index.html';
+                var fileName = 'public/sites/preview/'+ domain +'/index.html';
                 var stream = fs.createWriteStream(fileName);
 
                 stream.once('open', function(fd) {
@@ -115,13 +115,13 @@ app.post('/submit', function(req,res){
     req.busboy.on('file', function (fieldname, file, filename) {
         console.log("Uploading: " + filename); 
         imageFile = filename;
-        fstream = fs.createWriteStream(__dirname + '/public/sites/' + domain + '/' + filename);
+        fstream = fs.createWriteStream(__dirname + '/public/sites/preview/' + domain + '/' + filename);
         file.pipe(fstream);
     });
 
     //redirect to the newly created site on finish
     req.busboy.on('finish', function(){
-     res.redirect('/sites/'+ domain + '/index.html');
+     res.redirect('/sites/preview/'+ domain + '/index.html');
    });
 
 });
@@ -142,9 +142,11 @@ function buildHtml(req, title, imagePath) {
             +   '<meta property="og:title" content="Victor the winner" />'  
             +   '<meta property="og:description" content="Think you\'re winning? Think again." />'
             + '</head>'
-            + '<body style="margin: 30px; text-align:center;">'
-            + '<h1 style="margin-bottom:30px;">'+ title +'</h1>'
-            + '<img src="'+ imagePath +'">' 
+            + '<body style="text-align:center; margin:0px;">'
+            + '<h1 style="margin:30px 0px;">'+ title +'</h1>'
+            + '<img src="'+ imagePath +'">'
+            + '<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>'
+            + '<script src="../../../javascripts/single_page.js"></script>'
             + '</body>'
             + '</html>';
 };
