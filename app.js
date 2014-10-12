@@ -32,6 +32,7 @@ app.use(busboy());
 app.use('/', routes);
 app.use('/users', users);
 
+//ajax domain validator logic
 app.get('/searching', function(req, res){
  
     // input value from search
@@ -72,6 +73,7 @@ app.get('/searching', function(req, res){
 
 });
 
+//form submit logic
 app.post('/submit', function(req,res){
 
     var fstream;
@@ -124,6 +126,7 @@ app.post('/submit', function(req,res){
 
 });
 
+//build a simple static webpage with image and h1 as variables
 function buildHtml(req, title, imagePath) {
   var title = title;
   var imagePath = imagePath;
@@ -146,6 +149,7 @@ function buildHtml(req, title, imagePath) {
             + '</html>';
 };
 
+//is the value a valid domain format
 function checkDomain(value){
 
     var re = new RegExp(/^([\da-z\.-]+)\.([a-z\.]{2,6})$/);
