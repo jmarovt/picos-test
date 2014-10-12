@@ -7,6 +7,7 @@ var xml2js = require('xml2js');
 var fs = require('fs');
 var path = require('path');
 var busboy = require('connect-busboy');
+var mkdirp = require('mkdirp');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -66,7 +67,6 @@ app.get('/searching', function(req, res){
 
     }
     else {
-        console.log("teeeeeest");
         res.send("false");
     }
 
@@ -81,13 +81,7 @@ app.post('/submit', function(req,res){
 
     req.pipe(req.busboy);
 
-    req.busboy.on('file', function (fieldname, file, filename) {
-        console.log("Uploading: " + filename); 
-        imageFile = filename;
-        fstream = fs.createWriteStream(__dirname + '/public/sites/images/' + filename);
-        file.pipe(fstream);
-    });
-
+    //write static html page to the disk
     req.busboy.on('field', function(key, value, keyTruncated, valueTruncated) {
         
         if (key == "title") {
@@ -95,8 +89,13 @@ app.post('/submit', function(req,res){
         }
         else if(key == "domain"){
             domain = value;
+            var newFolder = 'public/sites/' + domain;
 
-                var fileName = 'public/sites/'+ domain +'.html';
+            //create new folder with the name of the domain
+            mkdirp(newFolder, function(err) { 
+
+                // path was created unless there was error
+                var fileName = 'public/sites/'+ domain +'/index.html';
                 var stream = fs.createWriteStream(fileName);
 
                 stream.once('open', function(fd) {
@@ -105,12 +104,22 @@ app.post('/submit', function(req,res){
                   stream.end(html);
                 });
 
-        }
-        
+            });
+        };
+              
     });
 
+    //write the image to the disk
+    req.busboy.on('file', function (fieldname, file, filename) {
+        console.log("Uploading: " + filename); 
+        imageFile = filename;
+        fstream = fs.createWriteStream(__dirname + '/public/sites/' + domain + '/' + filename);
+        file.pipe(fstream);
+    });
+
+    //redirect to the newly created site on finish
     req.busboy.on('finish', function(){
-     res.redirect("/sites/"+ domain + ".html");
+     res.redirect('/sites/'+ domain + '/index.html');
    });
 
 });
@@ -132,7 +141,7 @@ function buildHtml(req, title, imagePath) {
             + '</head>'
             + '<body style="margin: 30px; text-align:center;">'
             + '<h1 style="margin-bottom:30px;">'+ title +'</h1>'
-            + '<img src="images/'+ imagePath +'">' 
+            + '<img src="'+ imagePath +'">' 
             + '</body>'
             + '</html>';
 };
@@ -175,6 +184,5 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
-
 
 module.exports = app;

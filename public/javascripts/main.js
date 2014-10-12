@@ -62,7 +62,7 @@ $(function(){
 		var input = image;
 	    var value = input.val();
 
-		if ( value.indexOf(".png") > -1 || value.indexOf(".jpg") > -1 ){
+		if ( value.indexOf(".png") > -1 || value.indexOf(".jpg") > -1 || value.indexOf(".jpeg") > -1 ){
 
        		//check file size
        		if (input[0].files[0].size > 2000000){
